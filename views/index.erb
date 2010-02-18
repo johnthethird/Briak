@@ -1,0 +1,71 @@
+<h1><a href="/">Briak</a></h1>
+
+<form action="/config" method="post">
+  Host:Port: <input type="text" name="host" value="<%= session[:host] || "127.0.0.1" %>"/>
+  <input type="text" name="port" value="<%= session[:port] || "8098" %>"/><br/>
+  Bucket Names:<input type="text" name="bucket_names" value="<%= find("briak", "bucket_names").data rescue nil %>" /><br/>
+  <input type="submit" value="Save" />
+</form>
+
+<div class="bucket">
+  Bucket:
+  <select id="bucket_names">
+    <option value="none">(Select Bucket)</option>
+    <% bucket_names.each do |b| %>
+    <option value="<%= b %>" <%= "selected" if b == @bucket %>><%= b %></option>
+    <% end %>
+  </select>
+</div>
+
+<div class="keys" id="keys-list">
+  <div class="top-bar">
+    <h2>Keys</h2>
+  </div>
+  <div class="filter-bar">
+    <input class="filter filter-input placeholder" type="search" name="liveFilter" placeholder="Find Key..." />
+  </div>
+  <ul id="key-listing" class="list">
+    <% @keys.each {|k| %>
+      <li><a href="/get/<%= @bucket %>/<%= k %>"><%= k %></a></li>
+    <% } %>
+  </ul>
+  <div class="bottom-bar"></div>
+</div>
+
+
+Data for Current Key: <%= @key %><br />
+<% if @robject %>
+  Content Type: <%= @robject.content_type %><br />
+  eTag: <%= @robject.etag %><br />
+  vclock: <%= @robject.vclock %><br />
+  <form action="/put/<%= @bucket %>/<%= @key %>" method="POST">
+    <textarea name="data" rows="10" cols="50"><%= @robject.data %></textarea><br>
+    <input type="submit" name="operation" value="Update" />
+    <input type="submit" name="operation" value="Delete" />
+  </form>
+<% end %>
+
+<!--
+<iframe frameborder="0" src="<%= "http://#{session[:host]}:#{session[:port]}/raw/#{@bucket}/#{@key}" %>"></iframe>
+-->
+
+<hr>
+New Key
+<form action="/newkey/<%= @bucket %>" method="post">
+  <input type="text" name="key" /><br>
+  <input type="submit" />
+</form>
+<script type="text/javascript">
+$('#bucket_names').change(function() {
+  window.location = '/get/' + $('#bucket_names').val();
+});
+
+$('.filter-input').bind("blur keyup", function() {
+  $(this).val() == "" ? $(this).addClass("placeholder") : $(this).removeClass("placeholder");
+});
+
+$(document).ready(function() {
+  $('#keys-list').liveFilter('ul');
+});
+
+</script>

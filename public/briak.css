@@ -1,0 +1,13 @@
+.filter-bar .filter-input {
+  background: url("/filter_input.png") no-repeat scroll 0 -19px transparent;
+  border: medium none;
+  height: 15px;
+  padding: 2px 12px;
+  width: 200px;  
+  
+}
+
+.filter-bar .filter-input.placeholder {
+  background-position: 0 0;
+}
+
