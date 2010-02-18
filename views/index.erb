@@ -17,14 +17,14 @@
   </select>
 </div>
 
-<div class="keys" id="keys-list">
+<div id="keys">
   <div class="top-bar">
     <h2>Keys</h2>
   </div>
   <div class="filter-bar">
-    <input class="filter filter-input placeholder" type="search" name="liveFilter" placeholder="Find Key..." />
+    <input class="filter placeholder" type="search" />
   </div>
-  <ul id="key-listing" class="list">
+  <ul id="keys-list">
     <% @keys.each {|k| %>
       <li><a href="/get/<%= @bucket %>/<%= k %>"><%= k %></a></li>
     <% } %>
@@ -55,17 +55,17 @@ New Key
   <input type="text" name="key" /><br>
   <input type="submit" />
 </form>
+
 <script type="text/javascript">
-$('#bucket_names').change(function() {
-  window.location = '/get/' + $('#bucket_names').val();
-});
-
-$('.filter-input').bind("blur keyup", function() {
-  $(this).val() == "" ? $(this).addClass("placeholder") : $(this).removeClass("placeholder");
-});
-
-$(document).ready(function() {
-  $('#keys-list').liveFilter('ul');
-});
-
+  $('#bucket_names').change(function() {
+    window.location = '/get/' + $('#bucket_names').val();
+  });
+  
+  $('input.filter').bind("blur keyup", function() {
+    $(this).val() == "" ? $(this).addClass("placeholder") : $(this).removeClass("placeholder");
+  });
+  
+  $(document).ready(function() {
+    $('#keys').liveFilter('ul');
+  });
 </script>
