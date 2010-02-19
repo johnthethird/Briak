@@ -2,6 +2,7 @@ require 'rubygems'
 require 'sinatra'
 require 'ripple'
 require 'erb'
+require 'uri'
 
 enable :sessions
 
@@ -10,7 +11,7 @@ get '/' do
   @keys = []
   @key = nil
   @robject = nil
-  @flash = nil
+  @flash = params[:flash]
   erb :index
 end
 
@@ -32,6 +33,7 @@ get '/get/:bucket' do |bucket|
   @keys = client[bucket].keys.sort
   @key = nil
   @robject = nil
+  @flash = params[:flash]
   erb :index
 end
 
@@ -40,6 +42,7 @@ get '/get/:bucket/:key' do |bucket, key|
   @keys = client[bucket].keys.sort
   @key = key
   @robject = find(bucket,key)
+  @flash = params[:flash]
   erb :index
 end
 
@@ -48,10 +51,20 @@ post '/put/:bucket/:key' do |bucket, key|
   @keys = client[bucket].keys.sort
   @key = key
   @robject = find(bucket,key)
+  @flash = params[:flash]
   if params[:operation] == "Update"
+    if params[:link_bucket] != "Bucket" && params[:link_key] != "Key" && params[:link_rel]
+      o = find(params[:link_bucket], params[:link_key])
+      begin 
+        @robject.links << o.to_link(params[:link_rel].gsub(/[^[:alnum:]]/,'')) 
+      rescue Exception => e
+        @flash = "ERROR: Invalid Bucket/Key combination"
+        puts @flash
+      end
+    end
     @robject.data = params[:data]
     @robject.store
-    redirect "/get/#{@bucket}/#{@key}"
+    redirect "/get/#{@bucket}/#{@key}?flash=#{URI.escape(@flash) if @flash}"
   elsif params[:operation] == "Delete"
     @robject.delete
     redirect "/get/#{@bucket}/#{@key}"
@@ -72,6 +85,15 @@ post '/newkey/:bucket' do |bucket|
   redirect "/get/#{bucket}"
 end
 
+get '/remove_link/:bucket/:key/:link_bucket/:link_key/:link_rel' do |bucket, key, link_bucket, link_key, link_rel|
+  o = find(bucket,key)
+  o.links = o.links.select{ |link|
+    [link.bucket, link.key, link.rel] != [link_bucket, link_key, link_rel]
+  }
+  o.store
+  redirect "/get/#{bucket}/#{key}"
+end
+
 private
 def client
   @client ||= Riak::Client.new(:host => session[:host], :port => session[:port].to_i)
@@ -82,6 +104,7 @@ def bucket_names
 end
 
 def create(bucket,key, data, content_type=nil)
+  key = key.gsub(/\s/,'') if key
   b = bucket.is_a?(Riak::Bucket) ? bucket : client.bucket(bucket) 
   n = Riak::RObject.new(b, key)
   content_type = data.is_a?(String) ? "text/plain" : "text/yaml" unless content_type
@@ -100,3 +123,13 @@ def find(bucket, key)
   end
 end
 
+module Riak
+  class Link
+    attr_accessor :bucket
+    attr_accessor :key
+    def initialize(url, rel)
+      @url, @rel = url, rel
+      @bucket, @key = $1, $2 if @url =~ %r{/raw/([^/]+)/([^/]+)/?}
+    end
+  end
+end

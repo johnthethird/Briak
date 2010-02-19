@@ -58,8 +58,17 @@
 <div class="main">
   <h2><%= @key || "(No key selected)" %></h2>
   <% if @robject %>
-    <label>Content Type:</label> <%= @robject.content_type %><br />
     <form action="/put/<%= @bucket %>/<%= @key %>" method="POST">
+    <label>Content Type:</label> <%= @robject.content_type %><br />
+    <label>Create Link:</label> <input type="text" title="Bucket" name="link_bucket" /> 
+    <input type="text" title="Link" name="link_key" /> 
+    <input type="text" title="Relationship Tag" name="link_rel" /><br />
+    <% @robject.links.select{|l| l.rel != "up"}.each do |l| %>
+      <label>Link:</label> <a href="<%= "/get/#{l.bucket}/#{l.key}" %>"><%= "/get/#{l.bucket}/#{l.key}" %></a>
+      <label>Relationship:</label> <%= l.rel %>
+      <span class="edit-link">
+        <a href="<%= "/remove_link/#{@bucket}/#{@key}/#{l.bucket}/#{l.key}/#{l.rel}" %>">(remove)</a></span><br />
+    <% end %>
       <textarea id="key-data" name="data" spellcheck="false"><%= @robject.data %></textarea>
       <div class="buttons">
         <input type="submit" name="operation" value="Eval" />
@@ -110,4 +119,24 @@
   $(document).ready(function() {
     $('#keys').liveFilter('ul');
   });
+  
+  $(document).ready(function() {
+  	$('input[title]').each(function() {
+  		if($(this).val() === '') {
+  			$(this).val($(this).attr('title'));
+  		}
+  
+  		$(this).focus(function() {
+  			if($(this).val() === $(this).attr('title')) {
+  				$(this).val('').addClass('focused');
+  			}
+  		});
+  
+  		$(this).blur(function() {
+  			if($(this).val() === '') {
+  				$(this).val($(this).attr('title')).removeClass('focused');
+  			}
+  		});
+  	});
+  });  
 </script>

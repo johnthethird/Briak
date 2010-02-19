@@ -38,6 +38,15 @@ a:hover {
   text-decoration: underline;
 }
 
+input[type="text"] {
+  border:1px solid #CCCCCC;
+  color:#999999;
+  font:inherit;
+}
+input[type="text"]:focus, input[type="text"].focused {
+  border-color:#000000;
+  color:#333333;
+}
 
 .sidebar {
   float: left;
@@ -221,3 +230,4 @@ textarea#results {
   height: 400px;
   display: block;
 }
+
