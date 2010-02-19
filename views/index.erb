@@ -1,64 +1,93 @@
-<h1><a href="/">Briak</a></h1>
-
-<form action="/config" method="post">
-  Host:Port: <input type="text" name="host" value="<%= session[:host] || "127.0.0.1" %>"/>
-  <input type="text" name="port" value="<%= session[:port] || "8098" %>"/><br/>
-  Bucket Names:<input type="text" name="bucket_names" value="<%= find("briak", "bucket_names").data rescue nil %>" /><br/>
-  <input type="submit" value="Save" />
-</form>
-
-<div class="bucket">
-  Bucket:
-  <select id="bucket_names">
-    <option value="none">(Select Bucket)</option>
-    <% bucket_names.each do |b| %>
-    <option value="<%= b %>" <%= "selected" if b == @bucket %>><%= b %></option>
-    <% end %>
-  </select>
-</div>
-
-<div id="keys">
-  <div class="top-bar">
-    <h2>Keys</h2>
+<div class="header"><a href="/"><img src="/header.png" /></a></div>
+<div class="sidebar">
+  <div class="error"><%= @flash %></div>
+  <div id="connection">
+    <div class="top-bar">
+      <h2>Connection</h2>
+    </div>
+    <div class="select-bar">
+      <form action="/config" method="post">
+        Host: <input type="text" name="host" value="<%= session[:host] || "127.0.0.1" %>"/><br/>
+        Port: <input type="text" name="port" value="<%= session[:port] || "8098" %>"/><br/>
+        <input type="submit" value="Connect" />
+      </form>
+    </div>
+  </div>  
+  
+  <div id="buckets">
+    <div class="top-bar">
+      <h2>Buckets <span class="edit-link">(edit)</span></h2>
+    </div>
+    <div id="edit-buckets" class="top-bar" style="display:none;">
+      <span class="small">(List bucket names separated by a space...)</span>
+      <form action="/config" method="post">
+        <textarea name="bucket_names"><%= find("briak", "bucket_names").data rescue nil %></textarea>
+        <input type="submit" value="Save Bucket List"/>
+      </form>
+    </div>
+    <div class="select-bar">
+      <select id="bucket_names">
+        <option value="none">(Select Bucket)</option>
+        <% bucket_names.each do |b| %>
+        <option value="<%= b %>" <%= "selected" if b == @bucket %>><%= b %></option>
+        <% end %>
+      </select>
+    </div>
   </div>
-  <div class="filter-bar">
-    <input class="filter placeholder" type="search" />
+  
+  <div id="keys">
+    <div class="top-bar">
+      <h2>Keys <% if @bucket %><span class="edit-link">(add)</span><% end %></h2>
+    </div>
+    <div id="edit-keys" class="top-bar" style="display:none;">
+      <form action="/newkey/<%= @bucket %>" method="post">
+        <input type="text" name="key" /><br>
+        <input type="submit" value="Create new key"/>
+      </form>
+    </div>
+    <div class="filter-bar">
+      <input class="filter placeholder" type="search" />
+    </div>
+    <ul id="keys-list">
+      <% @keys.each {|k| %>
+        <li><a href="/get/<%= @bucket %>/<%= k %>"><%= k %></a></li>
+      <% } if @keys %>
+    </ul>
+    <div class="bottom-bar"></div>
   </div>
-  <ul id="keys-list">
-    <% @keys.each {|k| %>
-      <li><a href="/get/<%= @bucket %>/<%= k %>"><%= k %></a></li>
-    <% } %>
-  </ul>
-  <div class="bottom-bar"></div>
 </div>
-
-
-Data for Current Key: <%= @key %><br />
-<% if @robject %>
-  Content Type: <%= @robject.content_type %><br />
-  eTag: <%= @robject.etag %><br />
-  vclock: <%= @robject.vclock %><br />
-  <form action="/put/<%= @bucket %>/<%= @key %>" method="POST">
-    <textarea name="data" rows="10" cols="50"><%= @robject.data %></textarea><br>
-    <input type="submit" name="operation" value="Update" />
-    <input type="submit" name="operation" value="Delete" />
-  </form>
-<% end %>
-
+<div class="main">
+  <h2><%= @key || "(No key selected)" %></h2>
+  <% if @robject %>
+    <label>Content Type:</label> <%= @robject.content_type %><br />
+    <form action="/put/<%= @bucket %>/<%= @key %>" method="POST">
+      <textarea id="key-data" name="data"><%= @robject.data %></textarea>
+      <div class="buttons">
+        <input type="submit" name="operation" value="Update" />
+        <input type="submit" name="operation" value="Delete" />
+      </div>
+    </form>
+  <% end %>
+</div>
 <!--
 <iframe frameborder="0" src="<%= "http://#{session[:host]}:#{session[:port]}/raw/#{@bucket}/#{@key}" %>"></iframe>
 -->
 
-<hr>
-New Key
-<form action="/newkey/<%= @bucket %>" method="post">
-  <input type="text" name="key" /><br>
-  <input type="submit" />
-</form>
-
 <script type="text/javascript">
   $('#bucket_names').change(function() {
     window.location = '/get/' + $('#bucket_names').val();
+  });
+  
+  $('#buckets .edit-link').click(function() {
+    $('#edit-buckets').toggle();
+  });
+  
+  $('#keys .edit-link').click(function() {
+    $('#edit-keys').toggle();
+  });
+
+  $('.main input[value="Delete"]').click(function() {
+    return confirm("Are you sure?");
   });
   
   $('input.filter').bind("blur keyup", function() {

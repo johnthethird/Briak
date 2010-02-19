@@ -6,12 +6,58 @@ body * {
   line-height: 1.4em;
 }
 
-#keys {
+img {
+  border: none;
+}
+
+.container {
+  margin: 0 50px 0 50px;
+}
+
+.sidebar {
+  float: left;
+}
+
+.main {
+  width: 565px;
+  margin: 0 0 0 235px;
+}
+
+.header {
+  background: url("/header-line.png") repeat-y scroll 0 0 transparent;
+}
+
+.header img {
+  margin: 0 0 0 10px;
+}
+
+.error {
+  width: 225px;
+  background-color: red;
+  text-align: center;
+  font-weight: bold;
+}
+
+.small {
+  font-size: 10px;
+}
+
+.edit-link {
+  font-size: 9px;
+  font-weight: normal;
+}
+
+.edit-link:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+#connection, #buckets, #keys {
   width: 225px;
   background: url("/box_back.png") repeat-y scroll 0 0 transparent;
 }
 
-#keys h2 {
+#keys h2, #buckets h2, #connection h2 {
   color:#52595D;
   font-size:16px;
   height:44px;
@@ -58,7 +104,7 @@ body * {
   background-position: 0 0;
 }
 
-#keys .top-bar {
+.top-bar {
   background: url("/box_top.png") no-repeat scroll 0 0 transparent;
 }
 
@@ -69,5 +115,68 @@ body * {
   width:100%;
 }
 
+#buckets {
+  width: 225px;
+  background: url("/box_back.png") repeat-y scroll 0 0 transparent;
+  margin: 5px 0 10px 0px;
+}
 
+#buckets select {
+  font-size: 14px;
+  margin: 5px 0 0 15px;
+  width: 190px;
+}
 
+#buckets textarea {
+  width: 220px;
+  height: 75px;
+}
+
+#connection {
+  font-weight: bold;
+}
+#connection .select-bar {
+  margin: 4px 0 5px 8px;
+}
+#connection .select-bar input[type="text"] {
+  width: 100px;
+  margin: 0 0 3px 0;
+}
+      
+#connection input[type="submit"], 
+#buckets input[type="submit"],
+#keys input[type="submit"] {
+  width: 200px;
+  height: 20px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+#keys input[type="text"] {
+  margin: 5px 0 5px 5px;
+  width: 185px;
+}
+
+.main h2 {
+  font-size: 16px;
+  color: white;
+  background: grey;
+  font-weight: bold;
+  padding: 3px 0px 3px 5px;
+  margin: 0 0 0 0;
+}
+
+.main label {
+  font-weight: bold;
+}
+
+.main .buttons {
+  width: 200px;
+  margin: 5px 0 0 425px;
+}
+
+#key-data {
+  width: 560px;
+  height: 500px;
+  display: block;
+}
