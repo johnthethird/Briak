@@ -14,6 +14,31 @@ img {
   margin: 0 50px 0 50px;
 }
 
+.clear {
+  clear: both;
+}
+
+.footer {
+  margin-top: 50px;
+  text-align: center;
+  font-size: 10px;
+  color: grey;
+}
+
+.footer a{
+  color: grey;
+}
+
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+
 .sidebar {
   float: left;
 }
@@ -171,12 +196,28 @@ img {
 }
 
 .main .buttons {
-  width: 200px;
-  margin: 5px 0 0 425px;
+  width: 300px;
+  margin: 5px 0 0 295px;
+}
+
+.main .buttons input[value="Update"] {
+  margin-left: 20px;
 }
 
 #key-data {
   width: 560px;
-  height: 500px;
+  height: 400px;
+  display: block;
+}
+
+#mapredcode {
+  width: 560px;
+  height: 250px;
+  display: block;
+}
+
+textarea#results {
+  width: 560px;
+  height: 400px;
   display: block;
 }

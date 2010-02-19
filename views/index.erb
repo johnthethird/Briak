@@ -1,4 +1,3 @@
-<div class="header"><a href="/"><img src="/header.png" /></a></div>
 <div class="sidebar">
   <div class="error"><%= @flash %></div>
   <div id="connection">
@@ -61,17 +60,27 @@
   <% if @robject %>
     <label>Content Type:</label> <%= @robject.content_type %><br />
     <form action="/put/<%= @bucket %>/<%= @key %>" method="POST">
-      <textarea id="key-data" name="data"><%= @robject.data %></textarea>
+      <textarea id="key-data" name="data" spellcheck="false"><%= @robject.data %></textarea>
       <div class="buttons">
+        <input type="submit" name="operation" value="Eval" />
+        <span class="edit-link">(What's this?)</span>
         <input type="submit" name="operation" value="Update" />
         <input type="submit" name="operation" value="Delete" />
       </div>
+      <div id="eval-help" style="display:none">
+        <h2>Eval Help</h2>
+        <p>Eval will run the contents of the currently displayed key through Ruby eval,
+          and display the results below. This is useful for testing MapReduce code snippets.</p>
+        <p>For example, this code will display all values of the Briak bucket:</p>
+        <p>Riak::MapReduce.new(client).add("briak").map("function(v){ return [v.values[0].data] }", :keep=>true).run</p>
+      </div>
     </form>
   <% end %>
+  <% if @results %>
+    <h2>Results of Eval</h2>
+    <textarea id="results" spellcheck="false"><%= @results %></textarea>
+  <% end %>
 </div>
-<!--
-<iframe frameborder="0" src="<%= "http://#{session[:host]}:#{session[:port]}/raw/#{@bucket}/#{@key}" %>"></iframe>
--->
 
 <script type="text/javascript">
   $('#bucket_names').change(function() {
@@ -80,6 +89,10 @@
   
   $('#buckets .edit-link').click(function() {
     $('#edit-buckets').toggle();
+  });
+  
+  $('.main .buttons .edit-link').click(function() {
+    $('#eval-help').toggle();
   });
   
   $('#keys .edit-link').click(function() {

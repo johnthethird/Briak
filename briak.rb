@@ -51,25 +51,25 @@ post '/put/:bucket/:key' do |bucket, key|
   if params[:operation] == "Update"
     @robject.data = params[:data]
     @robject.store
+    redirect "/get/#{@bucket}/#{@key}"
   elsif params[:operation] == "Delete"
     @robject.delete
+    redirect "/get/#{@bucket}/#{@key}"
+  elsif params[:operation] == "Eval"
+    @robject.data = params[:data]
+    @robject.store
+    begin
+      @results = eval(params[:data])
+    rescue Exception => e
+      @results = "Error in Eval: #{e.message}"
+    end
+    erb :index
   end
-  redirect "/get/#{@bucket}/#{@key}"
 end
 
 post '/newkey/:bucket' do |bucket|
   create(bucket, params[:key], "")
   redirect "/get/#{bucket}"
-end
-    
-get '/seed1' do
-  data = %w{dog cat horse bee bird bug}
-  BUCKETS.each do |bucket_name|
-    bucket = client[bucket_name]
-    (1..100).each do |i|
-      create(bucket, "key#{i}", data[rand(5)])
-    end
-  end
 end
 
 private
