@@ -62,6 +62,7 @@ post '/put/:bucket/:key' do |bucket, key|
         puts @flash
       end
     end
+    @robject.content_type = params[:content_type]
     @robject.data = params[:data]
     @robject.store
     redirect "/get/#{@bucket}/#{@key}?flash=#{URI.escape(@flash) if @flash}"

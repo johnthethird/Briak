@@ -59,7 +59,7 @@
   <h2><%= @key || "(No key selected)" %></h2>
   <% if @robject %>
     <form action="/put/<%= @bucket %>/<%= @key %>" method="POST">
-    <label>Content Type:</label> <%= @robject.content_type %><br />
+    <label>Content Type:</label> <input type="text" name="content_type" value="<%= @robject.content_type %>" /><br />
     <label>Create Link:</label> <input type="text" title="Bucket" name="link_bucket" /> 
     <input type="text" title="Link" name="link_key" /> 
     <input type="text" title="Relationship Tag" name="link_rel" /><br />
