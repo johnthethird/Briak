@@ -130,7 +130,7 @@ module Riak
     attr_accessor :key
     def initialize(url, rel)
       @url, @rel = url, rel
-      @bucket, @key = $1, $2 if @url =~ %r{/raw/([^/]+)/([^/]+)/?}
+      @bucket, @key = $1, $2 if @url =~ %r{/riak/([^/]+)/([^/]+)/?}
     end
   end
 end
