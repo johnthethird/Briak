@@ -23,6 +23,7 @@
         <textarea name="bucket_names"><%= find("briak", "bucket_names").data rescue nil %></textarea>
         <input type="submit" value="Save Bucket List"/>
       </form>
+      <a class="delete-bucket" href="/foo">Delete Bucket</a>
     </div>
     <div class="select-bar">
       <select id="bucket_names">
@@ -69,11 +70,13 @@
       <span class="edit-link">
         <a href="<%= "/remove_link/#{@bucket}/#{@key}/#{l.bucket}/#{l.key}/#{l.rel}" %>">(remove)</a></span><br />
     <% end %>
-      <textarea id="key-data" name="data" spellcheck="false"><%= @robject.data %></textarea>
+      <%= render_data(@bucket, @key, @robject) %>
       <div class="buttons">
-        <input type="submit" name="operation" value="Eval" />
-        <span class="edit-link">(What's this?)</span>
-        <input type="submit" name="operation" value="Update" />
+        <% unless @robject.content_type =~ /image/ %>
+          <input type="submit" name="operation" value="Eval" />
+          <span class="edit-link">(What's this?)</span>
+          <input type="submit" name="operation" value="Update" />
+        <% end %>
         <input type="submit" name="operation" value="Delete" />
       </div>
       <div id="eval-help" style="display:none">
@@ -139,4 +142,15 @@
   		});
   	});
   });  
+  
+  jQuery(function($) { // document ready
+    $('a.delete-bucket').live('click', function(event) {
+        if ( confirm("Are you sure you want to delete all the keys in bucket: <" + $('#bucket_names').val() + "> ?") )
+            $('<form method="post" action="/delete_bucket/' + $('#bucket_names').val() + '" ></form>')
+              .appendTo('body')
+              .submit();
+        return false;
+    });
+  });
+  
 </script>

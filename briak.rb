@@ -1,6 +1,6 @@
 require 'rubygems'
-require 'sinatra'
 require 'ripple'
+require 'sinatra'
 require 'erb'
 require 'uri'
 
@@ -63,12 +63,13 @@ post '/put/:bucket/:key' do |bucket, key|
       end
     end
     @robject.content_type = params[:content_type]
-    @robject.data = params[:data]
+    @robject.data = @robject.content_type == "application/json" ? ActiveSupport::JSON.decode(params[:data]) : params[:data]
     @robject.store
     redirect "/get/#{@bucket}/#{@key}?flash=#{URI.escape(@flash) if @flash}"
   elsif params[:operation] == "Delete"
     @robject.delete
-    redirect "/get/#{@bucket}/#{@key}"
+    @flash = "Deleted key: #{@key}"
+    redirect "/get/#{@bucket}?flash=#{URI.escape(@flash) if @flash}"
   elsif params[:operation] == "Eval"
     @robject.data = params[:data]
     @robject.store
@@ -85,6 +86,15 @@ post '/newkey/:bucket' do |bucket|
   create(bucket, params[:key], "")
   redirect "/get/#{bucket}"
 end
+
+post '/delete_bucket/:bucket' do |bucket|
+  client[bucket].keys.each {|key|
+    puts "deleting #{key}..."
+    find(bucket,key).delete
+  }
+  redirect "/"
+end
+    
 
 get '/remove_link/:bucket/:key/:link_bucket/:link_key/:link_rel' do |bucket, key, link_bucket, link_key, link_rel|
   o = find(bucket,key)
@@ -122,6 +132,20 @@ def find(bucket, key)
     return nil if fr.code.to_i == 404
     raise fr
   end
+end
+
+# Renders out the appropriate HTML for each content type
+helpers do
+  def render_data(bucket, key, robject)
+    case 
+    when robject.content_type =~ %r{application/json}
+        %Q{<textarea id="key-data" name="data" spellcheck="false">#{robject.data.to_json}</textarea>}
+      when robject.content_type =~ %r{image}
+        %Q{<div id="image-data"><image src="http://#{session[:host]}:#{session[:port]}/riak/#{bucket}/#{key}" /></div>}
+      else
+        %Q{<textarea id="key-data" name="data" spellcheck="false">#{robject.data.to_s}</textarea>}
+    end
+  end  
 end
 
 module Riak
