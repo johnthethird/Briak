@@ -37,7 +37,7 @@ get '/get/:bucket' do |bucket|
   erb :index
 end
 
-get '/get/:bucket/:key' do |bucket, key|
+get %r{/get/([^/]+)/(.*)} do |bucket, key|
   @bucket = bucket
   @keys = client[bucket].keys.sort
   @key = key
@@ -46,7 +46,7 @@ get '/get/:bucket/:key' do |bucket, key|
   erb :index
 end
 
-post '/put/:bucket/:key' do |bucket, key|
+post %r{/put/([^/]+)/(.*)} do |bucket, key|
   @bucket = bucket
   @keys = client[bucket].keys.sort
   @key = key
@@ -105,6 +105,26 @@ get '/remove_link/:bucket/:key/:link_bucket/:link_key/:link_rel' do |bucket, key
   redirect "/get/#{bucket}/#{key}"
 end
 
+get '/test1' do
+  (1..100).each do |i|
+    puts "Saving item #{i}"
+    p = Riak::RObject.new(client['test'], "Parent#{i}")
+    p.content_type = "application/javascript"
+    p.data = {:item => 'one', :batch => i / 10}.to_json
+    p.store
+    (1..100).each do |j|
+      c = Riak::RObject.new(client['test'], "Child#{j}")
+      c.content_type = "application/javascript"
+      c.data = {:item => 'one', :batch => j / 10}.to_json
+      c.store
+      p.links << c.to_link("parent")
+      p.store
+    end
+  end
+end
+
+
+
 private
 def client
   @client ||= Riak::Client.new(:host => session[:host], :port => session[:port].to_i)
@@ -148,13 +168,3 @@ helpers do
   end  
 end
 
-module Riak
-  class Link
-    attr_accessor :bucket
-    attr_accessor :key
-    def initialize(url, rel)
-      @url, @rel = url, rel
-      @bucket, @key = $1, $2 if @url =~ %r{/riak/([^/]+)/([^/]+)/?}
-    end
-  end
-end
