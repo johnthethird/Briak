@@ -13,7 +13,7 @@ You will need Ruby 1.8.7, and the following gems:
 Clone the git repo
 
     git clone http://github.com/johnthethird/Briak.git briak
-    cd biak
+    cd briak
     ruby briak.rb
 
 Surf to the Briak URL
